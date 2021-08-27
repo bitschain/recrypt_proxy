@@ -1,0 +1,14 @@
+asgiref==3.4.1
+cffi==1.14.6
+cryptography==3.4.8
+Django==3.2.6
+djangorestframework==3.12.4
+pip==21.2.4
+psycopg2==2.9.1
+pycparser==2.20
+PyNaCl==1.4.0
+pytz==2021.1
+setuptools==57.4.0
+six==1.16.0
+sqlparse==0.4.1
+umbral==0.2.0
