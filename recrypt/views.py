@@ -6,6 +6,7 @@ import requests
 from django.views.decorators.csrf import csrf_exempt
 
 hospital_server_working = False
+hospital_url_from_id = {"1":"http://127.0.0.1:8000/"}
 
 def call_for_document(hospital_id_from_endpoint,report_id_from):
     if hospital_server_working:
@@ -19,7 +20,7 @@ def call_for_document(hospital_id_from_endpoint,report_id_from):
 def patient_request(request):
     if request.method == 'POST':
         hospital_id_from=request.POST['hospital_id_from']
-        hospital_id_from_endpoint = request.POST['hospital_id_from_url']
+        hospital_id_from_endpoint = hospital_url_from_id[hospital_id_from]
         report_id_from = request.POST.getlist('report_ids')
         hospital_id_to= request.POST['hospital_id_to']
         re_encryption_key_list = request.POST.getlist('re_encryption_key_list')
