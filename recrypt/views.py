@@ -25,6 +25,18 @@ def call_for_document(hospital_id_from_endpoint,report_id_from):
         encrypted_document = "7ntX0CMybx8l72EAE+zjm9d5o4l2/Ly6ASbK1eo5zH4U2BIambovwAWed+VkM0kP5XfbGmDsUnjjlIt22ULUK0BIyIA="
         return [(capsule,encrypted_document)]
 
+'''
+curl --request POST \
+  --url http://127.0.0.1:8001/transfer_doc_request \
+  --header 'Content-Type: application/x-www-form-urlencoded' \
+  --data hospital_id_from=1 \
+  --data report_ids=1 \
+  --data hospital_id_to=2 \
+  --data 're_encryption_key_list=AjhGghgbLoGWnEoCPQFR6PHotC0j+bFyT1MVXF2SGEsMAvCKyd6Zs20N7+9duLM4X3YztVJN1kEbQ2+lceFlCuJ9oYK8Rw5kP/ngFmkzpGquLO7eHlO3P5MIegasuiE5HSoDEEX4Q7eiH62UOF4r78l6tw05tD5hO0porfjNZdNSUIkCwLoPO3KX2oKP2LMmztXVhGDSt1fx6XaopBC9xq9eEHkDSndGwYAlbBnvB/1D4XrhILDmrC+IpunqRhTgRtuWH/MDtzTeO9f83h7U+AQ1mPH8nEQAPRGrOKVY/OIxs0eZEp4CzyAz+z7jPx0wxk2pF4NXvkPWV8C7xecb9jMpgCF7pSi/UMEwLWu8P5tN/hgK5CWEr/uKgKwGERwlb1cKQB0cL+4cuyqxAFotxucGd0eg3PVaz4JAzRk3d2RSsqs5zOdsf/24eyaFS1AdjsrlOR7JyfuLEX4oFJXPWgWqK2VRu7c=' \
+  --data 'patient_session_public_key_utf8=Ag7HVBkG8th5d+nIcRsVmhZtHpU3aCba/k346y4hOKSu' \
+  --data patient_session_verifying_key_utf8=fdvasd
+'''
+
 @csrf_exempt
 def patient_request(request):
     if request.method == 'POST':
