@@ -107,6 +107,7 @@ def patient_request(request):
             report_dict = {'hospital_report_unique_key': hospital_id_to+"_"+encrypted_document[2], 'report_id': encrypted_document[2], 'ciphertext': encrypted_document[1],
                            'capsule': encrypted_document[0],
                            'patient_session_public_key': patient_session_public_key_list_utf8[i],
+                           'patient_session_verifying_key': patient_session_verifying_key_list_utf8[i],
                            'cfrag': cfrag_deserialized}
             dicionary_of_documents.setdefault('reports',[]).append(report_dict)
 
