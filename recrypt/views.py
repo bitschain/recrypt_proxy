@@ -14,7 +14,7 @@ hospital_server_working = True
 
 ## Below will be received from some globally consistent authority like the NMDH
 hospital_url_from_id = {"1":"http://127.0.0.1:8000", "2":"http://127.0.0.1:8000"}
-hospital_public_key_utf8_from_id = {"2":'AnOiTuXYSk/Y3D90thF270273oruKErk3BU6jCDm8Yqv'}
+hospital_public_key_utf8_from_id = {"2":'A8oaMaPq0YNLGUJ3n3i3KCbrIyFiCNwdkH872O31mRXE'}
 
 
 def public_key_from_utf8(utf8_string: str) -> 'PublicKey':
@@ -31,30 +31,23 @@ def utf8_from_object(some_umbral_object) -> str:
 
 
 def call_for_document(hospital_id_from_endpoint,report_id_from):
-    if hospital_server_working:
-        payload = {'visit_id': '1', 'report_ids': '1'}
-        r = requests.get(hospital_id_from_endpoint+"/get_documents", params=payload)
-        # if r.status_code == 200:
-        #     return r.json() ##TODO
-        if r.status_code == 200:
-            body = r.json()
-            reports = []
-            for document in body['result']:
-                # print(document)
-                capsule = document['capsule']
-                encrypted_document = document['encrypted_document']
-                report_id = document['report_id']
-                document_tuple = (capsule, encrypted_document, report_id)
-                reports.append(document_tuple)
-            # return r.json() ##TODO
-            # print(reports)
-            return reports
-        elif r.status_code == 404:
-            return r
-    else:
-        capsule = 'Ai67Eg3P3OwqEurE1+KAO14t4AIRvPLVhuw5+u0dWD/SA4gn5yABVwhy7rbFRkBdtbpOTYU1qzyqQIIoPGgYcHZ4jA5lVkZ0LRC54ezIbnO6QG6jE9/gLHuP0hm0k6AX2vk='
-        encrypted_document = 'h0Wa3T1QDkcAgrPrxJ5p6JV6vDJyI0IwJQYqhtVRfIH4cOxmumgy9pRlU+gvpIfi0HhiODo/Ia/xFmFbRd2/tzk3bYQ='
-        return [(capsule,encrypted_document,report_id_from[0])]
+    payload = {'report_ids': report_id_from}
+    r = requests.get(hospital_id_from_endpoint+"/get_documents", params=payload)
+    if r.status_code == 200:
+        body = r.json()
+        reports = []
+        for document in body['result']:
+            # print(document)
+            capsule = document['capsule']
+            encrypted_document = document['encrypted_document']
+            report_id = document['report_id']
+            document_tuple = (capsule, encrypted_document, report_id)
+            reports.append(document_tuple)
+        # return r.json() ##TODO
+        # print(reports)
+        return reports
+    elif r.status_code == 404:
+        return r
 
 
 '''
@@ -78,6 +71,7 @@ def patient_request(request):
         hospital_id_from_endpoint = hospital_url_from_id[hospital_id_from]
         report_id_from = request.POST.getlist('report_ids')
         hospital_id_to= request.POST['hospital_id_to']
+        hospital_to_visit_id = request.POST['hospital_to_visit_id']
         kfrag_of_1_list = request.POST.getlist('re_encryption_key_list')
         patient_session_public_key_list_utf8 = request.POST.getlist('patient_session_public_key_utf8')
         patient_session_verifying_key_list_utf8 = request.POST.getlist('patient_session_verifying_key_utf8')
@@ -87,7 +81,7 @@ def patient_request(request):
 
         receiving_hospital_public_key_utf8 = hospital_public_key_utf8_from_id[hospital_id_to]
         receiving_hospital_public_key = public_key_from_utf8(receiving_hospital_public_key_utf8)
-        dicionary_of_documents = {}
+        dicionary_of_documents = {'hospital_to_visit_id': hospital_to_visit_id}
         cfrags = list()  # Bob's cfrag collection
         # Several Ursulas perform re-encryption, and Bob collects the resulting `cfrags`.
         for i,encrypted_document in enumerate(encrypted_documents_received):
@@ -110,31 +104,35 @@ def patient_request(request):
             cfrag_deserialized = base64.b64encode(bytes(cfrag)).decode('utf-8')
             cfrags.append(cfrag_deserialized)  # Bob collects a cfrag
 
-            report_dict = {'report_id': encrypted_document[2], 'ciphertext': encrypted_document[1],
+            report_dict = {'hospital_report_unique_key': hospital_id_to+"_"+encrypted_document[2], 'report_id': encrypted_document[2], 'ciphertext': encrypted_document[1],
                            'capsule': encrypted_document[0],
                            'patient_session_public_key': patient_session_public_key_list_utf8[i],
                            'cfrag': cfrag_deserialized}
-            dicionary_of_documents[i] = report_dict
-
+            dicionary_of_documents.setdefault('reports',[]).append(report_dict)
 
         all_document_details = zip(report_id_from,patient_session_public_key_list_utf8,encrypted_documents_received, cfrags)
 
         # create a dictionary
         document_dictionary = {}
-        return JsonResponse(dicionary_of_documents)
-        hospital_to(hospital_id_to,all_document_details, dicionary_of_documents)
+        # return JsonResponse(dicionary_of_documents)
+        r = hospital_to(hospital_id_to,dicionary_of_documents)
+        if r.status_code == 200:
+            return HttpResponse('Success')
+        else:
+            return HttpResponse('Failure')
 
 def hospital_from(request):
     pass
 
-def hospital_to(hospital_id_to, all_document_details, dicionary_of_documents):
+def hospital_to(hospital_id_to, dicionary_of_documents):
     # send a post request to hosbital_b
     if hospital_server_working:
         hospital_id_to_endpoint = hospital_url_from_id[hospital_id_to]
-        r = requests.post(hospital_id_to_endpoint+"/document_receive", json = dicionary_of_documents) # , all_document_details
+        r = requests.post(hospital_id_to_endpoint+"/add_documents", json = dicionary_of_documents) # , all_document_details
+        return r
     else:
         for document_dict in dicionary_of_documents:
-            Hospital_to_secret_key_utf8 = 'ReHwgkFi3neYZqGO2hQfoGfqFaB3XAJeAb7/s3Y/+Gc='
+            Hospital_to_secret_key_utf8 = 'lal4unkPcwkHLl0Epgr35YYBBQVgCr8Ql8Wn2Pba7hs='
             Hospital_to_secret_key = secret_key_from_utf8(Hospital_to_secret_key_utf8)
             # bob_cleartext = decrypt_reencrypted(receiving_sk=Hospital_to_secret_key,
             #                                 delegating_pk=document_dict[],
