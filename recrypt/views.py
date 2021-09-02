@@ -14,7 +14,7 @@ hospital_server_working = True
 
 ## Below will be received from some globally consistent authority like the NMDH
 hospital_url_from_id = {"1":"http://127.0.0.1:8000", "2":"http://127.0.0.1:8000"}
-hospital_public_key_utf8_from_id = {"2":'A8oaMaPq0YNLGUJ3n3i3KCbrIyFiCNwdkH872O31mRXE'}
+hospital_public_key_utf8_from_id = {"1":'AhU74FcV3aaKsqM2lpoe1Z+x6W1V/4IO+0hPqhxqJd9l',"2":'AwcMA3b8cTqpW8Rv5oy38tU/K7wVeMbEUTYFmtzW6tly'}
 
 
 def public_key_from_utf8(utf8_string: str) -> 'PublicKey':
@@ -118,7 +118,7 @@ def patient_request(request):
         # return JsonResponse(dicionary_of_documents)
         r = hospital_to(hospital_id_to,dicionary_of_documents)
         if r.status_code == 200:
-            return HttpResponse('Success')
+            return HttpResponse('Successful Transfer of documents')
         else:
             return HttpResponse('Failure')
 
@@ -127,17 +127,6 @@ def hospital_from(request):
 
 def hospital_to(hospital_id_to, dicionary_of_documents):
     # send a post request to hosbital_b
-    if hospital_server_working:
-        hospital_id_to_endpoint = hospital_url_from_id[hospital_id_to]
-        r = requests.post(hospital_id_to_endpoint+"/add_documents", json = dicionary_of_documents) # , all_document_details
-        return r
-    else:
-        for document_dict in dicionary_of_documents:
-            Hospital_to_secret_key_utf8 = 'lal4unkPcwkHLl0Epgr35YYBBQVgCr8Ql8Wn2Pba7hs='
-            Hospital_to_secret_key = secret_key_from_utf8(Hospital_to_secret_key_utf8)
-            # bob_cleartext = decrypt_reencrypted(receiving_sk=Hospital_to_secret_key,
-            #                                 delegating_pk=document_dict[],
-            #                                 capsule=capsule,
-            #                                 verified_cfrags=cfrags,
-            #                                 ciphertext=ciphertext)
-
+    hospital_id_to_endpoint = hospital_url_from_id[hospital_id_to]
+    r = requests.post(hospital_id_to_endpoint+"/add_documents", json = dicionary_of_documents) # , all_document_details
+    return r
