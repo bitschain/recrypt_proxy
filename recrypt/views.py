@@ -13,7 +13,7 @@ from umbral import reencrypt, KeyFrag, CapsuleFrag, PublicKey, Capsule, decrypt_
 hospital_server_working = True
 
 ## Below will be received from some globally consistent authority like the NMDH
-hospital_url_from_id = {"1":"http://127.0.0.1:8000", "2":"http://127.0.0.1:8000"}
+hospital_url_from_id = {"1":"http://167.71.205.128:8000", "2":"http://167.71.205.128:8001"}
 hospital_public_key_utf8_from_id = {"1":'AhU74FcV3aaKsqM2lpoe1Z+x6W1V/4IO+0hPqhxqJd9l',"2":'AwcMA3b8cTqpW8Rv5oy38tU/K7wVeMbEUTYFmtzW6tly'}
 
 
