@@ -140,3 +140,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+HOSPITALS_LIST = {"1":"http://167.71.205.128:8000",
+                  "2":"http://167.71.205.128:8001",
+                  }
