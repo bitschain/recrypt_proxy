@@ -3,6 +3,7 @@ import base64
 from django.http import HttpResponse, JsonResponse
 #remove HttpResponse,JsonResponse if not needed when going to production
 from django.shortcuts import render
+from django.conf import settings
 
 # Create your views here.
 import requests
@@ -13,8 +14,14 @@ from umbral import reencrypt, KeyFrag, CapsuleFrag, PublicKey, Capsule, decrypt_
 hospital_server_working = True
 
 ## Below will be received from some globally consistent authority like the NMDH
-hospital_url_from_id = {"1":"http://167.71.205.128:8000", "2":"http://167.71.205.128:8001"}
-hospital_public_key_utf8_from_id = {"1":'AhU74FcV3aaKsqM2lpoe1Z+x6W1V/4IO+0hPqhxqJd9l',"2":'AwcMA3b8cTqpW8Rv5oy38tU/K7wVeMbEUTYFmtzW6tly'}
+hospital_url_from_id = getattr(settings, "HOSPITALS_LIST", {"1":"http://167.71.205.128:8000","2":"http://167.71.205.128:8001",})
+
+hospital_public_key_utf8_from_id={}
+for hospital in hospital_url_from_id.items():
+    r = requests.get(hospital[1]+"/public_key")
+    hospital_public_key_utf8_from_id[hospital[0]] = r.text
+print(hospital_public_key_utf8_from_id.items())
+# hospital_public_key_utf8_from_id = {"1":'AhU74FcV3aaKsqM2lpoe1Z+x6W1V/4IO+0hPqhxqJd9l',"2":'AwcMA3b8cTqpW8Rv5oy38tU/K7wVeMbEUTYFmtzW6tly'}
 
 
 def public_key_from_utf8(utf8_string: str) -> 'PublicKey':
